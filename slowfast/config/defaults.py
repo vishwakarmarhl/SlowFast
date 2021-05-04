@@ -210,7 +210,7 @@ _C.MODEL.ARCH = "slowfast"
 _C.MODEL.MODEL_NAME = "SlowFast"
 
 # The number of classes to predict for the model.
-_C.MODEL.NUM_CLASSES = 400
+_C.MODEL.NUM_CLASSES = [400,]
 
 # Loss function.
 _C.MODEL.LOSS_FUNC = "cross_entropy"
@@ -293,9 +293,6 @@ _C.DATA.TRAIN_CROP_SIZE = 224
 # The spatial crop size for testing.
 _C.DATA.TEST_CROP_SIZE = 256
 
-# Input videos may has different fps, convert it to the target video fps before
-# frame sampling.
-_C.DATA.TARGET_FPS = 30
 
 # Decoding backend, options include `pyav` or `torchvision`
 _C.DATA.DECODING_BACKEND = "pyav"
@@ -525,6 +522,29 @@ _C.AVA.GROUNDTRUTH_FILE = "ava_val_v2.2.csv"
 
 # Backend to process image, includes `pytorch` and `cv2`.
 _C.AVA.IMG_PROC_BACKEND = "cv2"
+
+# -----------------------------------------------------------------------------
+# EPIC-KITCHENS Dataset options
+# -----------------------------------------------------------------------------
+_C.EPICKITCHENS = CfgNode()
+
+_C.EPICKITCHENS.VISUAL_DATA_DIR = ""
+
+_C.EPICKITCHENS.ANNOTATIONS_DIR = ""
+
+_C.EPICKITCHENS.TRAIN_LIST = "EPIC_100_train.pkl"
+
+_C.EPICKITCHENS.VAL_LIST = "EPIC_100_validation.pkl"
+
+_C.EPICKITCHENS.TEST_LIST = "EPIC_100_validation.pkl"
+
+_C.EPICKITCHENS.TEST_SPLIT = "validation"
+
+_C.EPICKITCHENS.TRAIN_PLUS_VAL = False
+
+# Load selected videos with named 3 character prefixes. Eg: EPIC Dataset ["P01", "P02"]
+_C.EPICKITCHENS.DATA_LOAD_SELECTOR_LIST = None
+
 
 # ---------------------------------------------------------------------------- #
 # Multigrid training options

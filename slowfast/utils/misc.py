@@ -60,6 +60,50 @@ def gpu_mem_usage():
         mem_usage_bytes = 0
     return mem_usage_bytes / 1024 ** 3
 
+def get_flop_stats(model, cfg, is_train):
+    """
+    Compute the gflops for the current model given the config.
+    Args:
+        model (model): model to compute the flop counts.
+        cfg (CfgNode): configs. Details can be found in
+            slowfast/config/defaults.py
+        is_train (bool): if True, compute flops for training. Otherwise,
+            compute flops for testing.
+
+    Returns:
+        float: the total number of gflops of the given model.
+    """
+    rgb_dimension = 3
+    if is_train:
+        input_tensors = torch.rand(
+            rgb_dimension,
+            cfg.DATA.NUM_FRAMES,
+            cfg.DATA.TRAIN_CROP_SIZE,
+            cfg.DATA.TRAIN_CROP_SIZE,
+        )
+    else:
+        input_tensors = torch.rand(
+            rgb_dimension,
+            cfg.DATA.NUM_FRAMES,
+            cfg.DATA.TEST_CROP_SIZE,
+            cfg.DATA.TEST_CROP_SIZE,
+        )
+
+    flop_inputs = pack_pathway_output(cfg, input_tensors)
+    for i in range(len(flop_inputs)):
+        flop_inputs[i] = flop_inputs[i].unsqueeze(0).cuda(non_blocking=True)
+
+    # If detection is enabled, count flops for one proposal.
+    if cfg.DETECTION.ENABLE:
+        bbox = torch.tensor([[0, 0, 1.0, 0, 1.0]])
+        bbox = bbox.cuda()
+        inputs = (flop_inputs, bbox)
+    else:
+        inputs = (flop_inputs,)
+
+    gflop_dict, _ = flop_count(model, inputs)
+    gflops = sum(gflop_dict.values())
+    return gflops
 
 def cpu_mem_usage():
     """

@@ -34,17 +34,6 @@ Here we can start with training a simple SLOWFAST models on AVA dataset:
 - You may also want to add multiple other configurations
   ``` DATA_LOADER.NUM_WORKERS 0 NUM_GPUS 2 TRAIN.BATCH_SIZE 16 ```
 
-If you want to launch a quick job for debugging on your local machine.
-
-#### Resume from an Existing Checkpoint
-
-- If your checkpoint is trained by PyTorch, then you can add the following line in the command line, or you can also add it in the YAML config:
-  ``` TRAIN.CHECKPOINT_FILE_PATH path_to_your_PyTorch_checkpoint ```
-- If the checkpoint in trained by Caffe2, then you can do the following:
-  ``` TRAIN.CHECKPOINT_FILE_PATH path_to_your_Caffe2_checkpoint TRAIN.CHECKPOINT_TYPE caffe2 ```
-- If you need to performance inflation on the checkpoint, remember to set `TRAIN.CHECKPOINT_INFLATE` to True.
-
-
 ### Test
 
 We have `TRAIN.ENABLE` and `TEST.ENABLE` to control whether training or testing is required for the current job. 
@@ -52,10 +41,29 @@ We have `TRAIN.ENABLE` and `TEST.ENABLE` to control whether training or testing 
 - Train or download from [Model Zoo](https://github.com/facebookresearch/SlowFast/blob/master/MODEL_ZOO.md#ava)
 - Pass the path to the model you want to test to TEST.CHECKPOINT_FILE_PATH. Eg: [SLOWFAST_32x2_R101_50_50_v2.1.pkl](https://dl.fbaipublicfiles.com/pyslowfast/model_zoo/ava/SLOWFAST_32x2_R101_50_50_v2.1.pkl)
   ```
-  python tools/run_net.py --cfg configs/AVA/c2/SLOWFAST_32x2_R101_50_50_v2.1_V0.yaml DATA.PATH_TO_DATA_DIR /media/rahul/DTB2/data/AVA \ 
-        TRAIN.ENABLE False TEST.CHECKPOINT_FILE_PATH output/SLOWFAST_32x2_R101_50_50_v2.1.pkl
+  python tools/run_net.py --cfg configs/AVA/c2/SLOWFAST_32x2_R101_50_50_v2.1_V0.yaml DATA.PATH_TO_DATA_DIR /media/rahul/DTB2/data/AVA TRAIN.ENABLE False TEST.CHECKPOINT_FILE_PATH output/SLOWFAST_32x2_R101_50_50_v2.1.pkl
   ```
 ---
 
 
 ## B. Train a Standard Model from Scratch (EPIC)
+
+```
+python tools/run_net.py --cfg configs/EPIC-KITCHENS/SLOWFAST_8x8_R50_V0.yaml NUM_GPUS 1 OUTPUT_DIR ./output EPICKITCHENS.VISUAL_DATA_DIR /media/rahul/DTB2/data/epic/EPIC-KITCHENS  EPICKITCHENS.ANNOTATIONS_DIR /media/rahul/DTB2/data/epic/epic-kitchens-100-annotations EPICKITCHENS.DATA_LOAD_SELECTOR_LIST [\"P01\"] 
+```
+- sample log
+    ``` [05/03 12:00:05][INFO] train_net.py: 568: Start epoch: 8
+    [05/03 12:00:12][INFO] logging.py:  99: json_stats: {"_type": "train_iter", "dt_data": 0.01517, "dt_diff": 0.55199, "dt_net": 0.53681, "epoch": "8/30", "eta": "1:12:41", "gpu_mem": "5.22G", "iter": "10/344", "loss": 1.63013, "lr": 0.01000, "mem": 6, "noun_loss": 1.70481, "noun_top1_acc": 56.25000, "noun_top5_acc": 84.37500, "top1_acc": 37.50000, "top5_acc": 81.25000, "verb_loss": 1.72457, "verb_top1_acc": 43.75000, "verb_top5_acc": 90.62500}
+    ``` 
+
+### Test (EPIC)
+
+```
+python tools/run_net.py --cfg configs/EPIC-KITCHENS/SLOWFAST_8x8_R50_V0.yaml NUM_GPUS 1 OUTPUT_DIR ./output EPICKITCHENS.VISUAL_DATA_DIR /media/rahul/DTB2/data/epic/EPIC-KITCHENS  EPICKITCHENS.ANNOTATIONS_DIR /media/rahul/DTB2/data/epic/epic-kitchens-100-annotations TRAIN.ENABLE False TEST.ENABLE True TEST.CHECKPOINT_FILE_PATH ./output/SlowFast.pyth 
+```
+- sample log
+    ``` [05/03 15:28:29][INFO] logging.py:  99: json_stats: {"cur_iter": "554", "eta": "0:00:00", "split": "test_iter", "time_diff": 0.02796}
+    [05/03 15:28:29][INFO] logging.py:  99: json_stats: {"noun_top1_acc": "55.82", "noun_top5_acc": "80.23", "split": "test_final", "verb_top1_acc": "62.71", "verb_top5_acc": "92.88"}
+    [05/03 15:28:29][INFO] test_net.py: 178: Successfully saved prediction results to ./output/testrun
+    [05/03 15:28:29][INFO] logging.py:  99: json_stats: {"noun_top1_acc": "55.82", "noun_top5_acc": "80.23", "split": "test_final", "verb_top1_acc": "62.71", "verb_top5_acc": "92.88"}
+    ```

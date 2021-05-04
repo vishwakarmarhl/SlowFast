@@ -407,7 +407,7 @@ class Ava(torch.utils.data.Dataset):
             )
 
         # Construct label arrays.
-        label_arrs = np.zeros((len(labels), self._num_classes), dtype=np.int32)
+        label_arrs = np.zeros((len(labels), self._num_classes[0]), dtype=np.int32)
         for i, box_labels in enumerate(labels):
             # AVA label index starts from 1.
             for label in box_labels:
