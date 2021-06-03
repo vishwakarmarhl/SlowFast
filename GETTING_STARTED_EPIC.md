@@ -6,8 +6,8 @@ This document provides a brief intro of launching jobs in PySlowFast for trainin
 - Change the environment.yml for PyTorch cudatoolkit other than [CUDA 11.0](https://pytorch.org/get-started/previous-versions/#v170) 
 - Change Detectron2 dependency based on above CUDA [archive release](https://github.com/facebookresearch/detectron2/releases)
 ```
-conda env create -n epic-slowfast --file environment.yml --force
-conda activate epic-slowfast 
+conda env create -n slowfast --file environment.yml --force
+conda activate slowfast 
 ```
 
 ## Pretrained model
