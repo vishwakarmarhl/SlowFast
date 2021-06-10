@@ -5,6 +5,7 @@
 
 import itertools
 import numpy as np
+from functools import partial
 import torch
 from torch.utils.data._utils.collate import default_collate
 from torch.utils.data.distributed import DistributedSampler
@@ -16,7 +17,7 @@ from . import utils as utils
 from .build import build_dataset
 
 
-def multiple_samples_collate(batch):
+def multiple_samples_collate(batch, fold=False):
     """
     Collate function for repeated augmentation. Each instance in the batch has
     more than one sample.
@@ -35,7 +36,10 @@ def multiple_samples_collate(batch):
         default_collate(video_idx),
         default_collate(extra_data),
     )
-    return inputs, labels, video_idx, extra_data
+    if fold:
+        return [inputs], labels, video_idx, extra_data
+    else:
+        return inputs, labels, video_idx, extra_data
 
 
 def detection_collate(batch):
@@ -140,7 +144,9 @@ def construct_loader(cfg, split, is_precise_bn=False):
             if cfg.DETECTION.ENABLE:
                 collate_func = detection_collate
             elif cfg.AUG.NUM_SAMPLE > 1 and split in ["train"]:
-                collate_func = multiple_samples_collate
+                collate_func = partial(
+                    multiple_samples_collate, fold="imagenet" in dataset_name
+                )
             else:
                 collate_func = None
 
