@@ -119,6 +119,10 @@ def train_epoch(
         # Perform the backward pass.
         optimizer.zero_grad()
         loss.backward()
+        if cfg.SOLVER.CLIP_GRAD_VAL:
+            torch.nn.utils.clip_grad_value_(model.parameters(), cfg.SOLVER.CLIP_GRAD_VAL)
+        elif cfg.SOLVER.CLIP_GRAD_L2NORM:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.SOLVER.CLIP_GRAD_L2NORM)
         # Update the parameters.
         optimizer.step()
 
@@ -128,6 +132,7 @@ def train_epoch(
             )
             idx_top1 = torch.arange(labels.shape[0]), top_max_k_inds[:, 0]
             idx_top2 = torch.arange(labels.shape[0]), top_max_k_inds[:, 1]
+            preds = preds.detach()
             preds[idx_top1] += preds[idx_top2]
             preds[idx_top2] = 0.0
             labels = top_max_k_inds[:, 0]

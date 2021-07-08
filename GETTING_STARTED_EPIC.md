@@ -38,6 +38,8 @@ python tools\run_net.py --cfg path/to/<pretrained_model_config_file>.yaml
 
 ```
 python tools/run_net.py --cfg configs/EPIC-KITCHENS/SLOWFAST_8x8_R50_V0.yaml NUM_GPUS 1 OUTPUT_DIR ./output EPICKITCHENS.VISUAL_DATA_DIR /media/rahul/DTB2/data/epic/EPIC-KITCHENS  EPICKITCHENS.ANNOTATIONS_DIR /media/rahul/DTB2/data/epic/epic-kitchens-100-annotations EPICKITCHENS.DATA_LOAD_SELECTOR_LIST [\"P01\"] 
+
+python tools/run_net.py --cfg configs/EPIC-KITCHENS/SLOWFAST_8x8_R50_V0.yaml NUM_GPUS 1 OUTPUT_DIR ./output EPICKITCHENS.VISUAL_DATA_DIR /media/rahul/DTA2/data/epic/EPIC-KITCHENS  EPICKITCHENS.ANNOTATIONS_DIR /media/rahul/DTA2/data/epic/epic-kitchens-100-annotations
 ```
 - Sample log
     ``` 
@@ -110,31 +112,32 @@ So, after downloading the dataset navigate under <participant_id>/rgb_frames for
 ```
 #!/bin/bash
 
-#export EPIC_PATH=/media/rahul/DTB2/data/epic/EPIC-KITCHENS-100
 export EPIC_PATH=/media/rahul/DTA2/data/epic/EPIC-KITCHENS
  
 # Declare an array of participant_id
-declare -a PartIdArray=("P01")
+#declare -a PartIdArray=("P01")
 #declare -a PartIdArray=("P02" "P03" "P04" "P05" "P06" "P07" "P08" "P09" "P10")
 #declare -a PartIdArray=("P11" "P12" "P13" "P14" "P15" "P16" "P17" "P18" "P19" "P20")
 #declare -a PartIdArray=("P21" "P22" "P23" "P24" "P25" "P26" "P27" "P28" "P29" "P30")
-#declare -a PartIdArray=("P31" "P32" "P33" "P34" "P35" "P36" "P37")
+declare -a PartIdArray=("P31" "P32" "P33" "P34" "P35" "P36" "P37")
 
-# Iterate the string array using for loop
-for pid in ${PartIdArray[@]}; do
-  cd $EPIC_PATH/$pid/rgb_frames
-  echo "${pid} - Start Processing"
-  for a in $(ls -1 *.tar); do 
-    tar -xf $a --one-top-level ; 
-    if [ $? -eq 0 ]; then
-       echo "\t $a Success"
-       #rm -f $a
-    else
-       echo "\t $a FAIL"
-    fi
-  echo "${pid} - End Processing"
+function unzip_rgb_frames {
+  # Iterate the string array using for loop
+  for pid in ${PartIdArray[@]}; do
+    cd $EPIC_PATH/$pid/rgb_frames
+    echo -e "${pid} - Start - $(date -u)" 
+    for a in $(ls -1 *.tar); do 
+      tar -xf $a --one-top-level ; 
+      if [ $? -eq 0 ]; then
+        echo -e "\t $a Success - $(date -u)"
+        rm -f $a
+      else
+        echo -e "\t $a FAIL - $(date -u)"
+      fi
+    done
+    echo -e "${pid} - End   - $(date -u)"
   done
-done
+}
 
 
 ```
